@@ -21,4 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Chatter"
 include(":app")
- 
+include(":feature:chat")
+include(":core:common")
+include(":core:network")
+include(":core:feature_api")
+include(":core:database")
