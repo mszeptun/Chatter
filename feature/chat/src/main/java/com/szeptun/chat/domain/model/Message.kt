@@ -1,4 +1,9 @@
 package com.szeptun.chat.domain.model
 
-class Message {
-}
+data class Message(
+    val id: Long = 0L,
+    val content: String,
+    val senderId: Long,
+    val chatId: Long,
+    val timestamp: Long
+)

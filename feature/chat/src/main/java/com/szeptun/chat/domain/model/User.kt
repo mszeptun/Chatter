@@ -1,4 +1,7 @@
 package com.szeptun.chat.domain.model
 
-class User {
-}
+data class User(
+    val id: Long = 0L,
+    val name: String,
+    val avatarUrl: String
+)
