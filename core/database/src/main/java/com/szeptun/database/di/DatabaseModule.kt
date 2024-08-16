@@ -2,6 +2,7 @@ package com.szeptun.database.di
 
 import android.content.Context
 import androidx.room.Room
+import com.szeptun.database.AppDatabase
 import com.szeptun.database.dao.ChatDao
 import com.szeptun.database.dao.MessageDao
 import com.szeptun.database.dao.UserDao

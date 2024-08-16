@@ -1,4 +1,4 @@
-package com.szeptun.database.di
+package com.szeptun.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

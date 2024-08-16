@@ -5,7 +5,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.szeptun.database.entity.ChatEntity
-import com.szeptun.database.entity.ChatWithMessages
+import com.szeptun.database.entity.ChatWithMessagesAndUsers
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChatDao {
@@ -21,5 +22,5 @@ interface ChatDao {
 
     @Transaction
     @Query("SELECT * FROM chat WHERE id = :chatId")
-    suspend fun getChatWithMessages(chatId: Long): ChatWithMessages?
+    fun getChatWithMessagesAndUsers(chatId: Long): Flow<ChatWithMessagesAndUsers?>
 }
