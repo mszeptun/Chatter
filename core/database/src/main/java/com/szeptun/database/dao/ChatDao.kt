@@ -17,9 +17,6 @@ interface ChatDao {
     @Query("SELECT * FROM chat WHERE id = :chatId")
     suspend fun getChatById(chatId: Long): ChatEntity?
 
-    @Query("SELECT * FROM chat")
-    suspend fun getAllChats(): List<ChatEntity>
-
     @Transaction
     @Query("SELECT * FROM chat WHERE id = :chatId")
     fun getChatWithMessagesAndUsers(chatId: Long): Flow<ChatWithMessagesAndUsers?>

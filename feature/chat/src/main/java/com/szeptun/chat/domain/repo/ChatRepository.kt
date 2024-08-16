@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
 
-    fun getConversationData(chatId: Long = 0): Flow<Conversation?>
+    fun getConversationData(chatId: Long): Flow<Conversation?>
 
     suspend fun insertMessage(message: Message)
 }

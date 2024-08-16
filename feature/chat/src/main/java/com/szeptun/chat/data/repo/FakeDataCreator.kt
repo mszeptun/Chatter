@@ -27,9 +27,9 @@ object FakeDataCreator {
 
     // Create fake chat messages for previously created users and chat
     fun createFakeMessages(
-        user1Id: Long = 0,
-        user2Id: Long = 1,
-        chatId: Long = 0
+        localUserId: Long = 1,
+        interlocutorId: Long = 2,
+        chatId: Long = 1
     ): List<Message> {
         val messages = mutableListOf<Message>()
         val seed = 42L // Use a fixed seed for deterministic results
@@ -38,36 +38,36 @@ object FakeDataCreator {
         var lastTimestamp = startTime
 
         val conversation = listOf(
-            Pair(user1Id, "Hey, what's up?"),
-            Pair(user2Id, "Not much, just chilling. You?"),
-            Pair(user1Id, "Same here. Wanna grab a coffee later?"),
-            Pair(user2Id, "Sure! What time?"),
-            Pair(user1Id, "How about 3 PM?"),
-            Pair(user2Id, "Perfect. See you then!"),
-            Pair(user1Id, "Cool, see you soon!"),
-            Pair(user2Id, "By the way, did you finish that project?"),
-            Pair(user1Id, "Almost. Just need to wrap up a few things."),
-            Pair(user2Id, "Nice! Let me know if you need any help."),
-            Pair(user1Id, "Thanks, appreciate it!"),
-            Pair(user2Id, "No problem!"),
-            Pair(user1Id, "Hey, I'm on my way!"),
-            Pair(user2Id, "Great, see you in a bit!"),
-            Pair(user1Id, "I'm here. Where are you?"),
-            Pair(user2Id, "Just parking, be there in 2 mins."),
-            Pair(user1Id, "Got it, waiting inside."),
-            Pair(user2Id, "Sorry, ran into some traffic."),
-            Pair(user1Id, "No worries, take your time."),
-            Pair(user2Id, "Almost there!"),
-            Pair(user1Id, "I see you, waving at you!"),
-            Pair(user2Id, "Haha, found you!"),
-            Pair(user1Id, "Let's grab that coffee."),
-            Pair(user2Id, "Absolutely. Let's go!"),
-            Pair(user1Id, "Nice catching up with you."),
-            Pair(user2Id, "Same here! We should do this more often."),
-            Pair(user1Id, "For sure. Let's plan something for next weekend."),
-            Pair(user2Id, "Sounds good! I'll check my schedule."),
-            Pair(user1Id, "Cool. Talk to you later!"),
-            Pair(user2Id, "Bye!")
+            Pair(localUserId, "Hey, what's up?"),
+            Pair(interlocutorId, "Not much, just chilling. You?"),
+            Pair(localUserId, "Same here. Wanna grab a coffee later?"),
+            Pair(interlocutorId, "Sure! What time?"),
+            Pair(localUserId, "How about 3 PM?"),
+            Pair(interlocutorId, "Perfect. See you then!"),
+            Pair(localUserId, "Cool, see you soon!"),
+            Pair(interlocutorId, "By the way, did you finish that project?"),
+            Pair(localUserId, "Almost. Just need to wrap up a few things."),
+            Pair(interlocutorId, "Nice! Let me know if you need any help."),
+            Pair(localUserId, "Thanks, appreciate it!"),
+            Pair(interlocutorId, "No problem!"),
+            Pair(localUserId, "Hey, I'm on my way!"),
+            Pair(interlocutorId, "Great, see you in a bit!"),
+            Pair(localUserId, "I'm here. Where are you?"),
+            Pair(interlocutorId, "Just parking, be there in 2 mins."),
+            Pair(localUserId, "Got it, waiting inside."),
+            Pair(interlocutorId, "Sorry, ran into some traffic."),
+            Pair(localUserId, "No worries, take your time."),
+            Pair(interlocutorId, "Almost there!"),
+            Pair(interlocutorId, "I see you, waving at you!"),
+            Pair(interlocutorId, "Haha, found you!"),
+            Pair(localUserId, "Let's grab that coffee."),
+            Pair(interlocutorId, "Absolutely. Let's go!"),
+            Pair(localUserId, "Nice catching up with you."),
+            Pair(interlocutorId, "Same here! We should do this more often."),
+            Pair(localUserId, "For sure. Let's plan something for next weekend."),
+            Pair(interlocutorId, "Sounds good! I'll check my schedule."),
+            Pair(localUserId, "Cool. Talk to you later!"),
+            Pair(interlocutorId, "Bye!")
         )
 
         for ((index, message) in conversation.withIndex()) {

@@ -45,9 +45,10 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     private suspend fun insertFakeDataIfNeeded() {
-        val chatData = chatDao.getChatById(0)
+        val messageCount = messageDao.getMessageCount()
 
-        if (chatData == null) {
+        //If there is no message then we want to insert fake data
+        if (messageCount == 0) {
             FakeDataCreator.createFakeUserData().map {
                 it.toUserEntity()
             }.forEach { user ->

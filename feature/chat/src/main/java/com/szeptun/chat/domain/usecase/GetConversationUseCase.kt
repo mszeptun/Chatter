@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 class GetConversationUseCase @Inject constructor(private val repository: ChatRepository) {
-    operator fun invoke(): Flow<Response<Conversation>> =
-        repository.getConversationData().map { data ->
+    operator fun invoke(chatId: Long): Flow<Response<Conversation>> =
+        repository.getConversationData(chatId).map { data ->
             if (data == null) {
                 Response.Error("Chat not found or data unavailable")
             } else {

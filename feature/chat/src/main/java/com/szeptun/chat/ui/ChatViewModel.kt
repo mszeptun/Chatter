@@ -20,7 +20,8 @@ import javax.inject.Named
 class ChatViewModel @Inject constructor(
     private val getConversationUseCase: GetConversationUseCase,
     private val insertMessageUseCase: InsertMessageUseCase,
-    @Named("localUserId") private val localUserId: Long
+    @Named("localUserId") private val localUserId: Long,
+    @Named("chatId") private val chatId: Long
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
@@ -34,7 +35,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun getConversation() {
-        getConversationUseCase.invoke().onEach { response ->
+        getConversationUseCase.invoke(chatId).onEach { response ->
             when (response) {
                 is Response.Success -> {
                     val messages = response.data.messages.map { message ->

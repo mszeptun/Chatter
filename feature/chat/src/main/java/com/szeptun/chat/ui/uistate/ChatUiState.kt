@@ -1,5 +1,6 @@
 package com.szeptun.chat.ui.uistate
 
+import com.szeptun.chat.domain.model.Chat
 import com.szeptun.chat.domain.model.User
 import com.szeptun.chat.ui.model.MessageType
 
