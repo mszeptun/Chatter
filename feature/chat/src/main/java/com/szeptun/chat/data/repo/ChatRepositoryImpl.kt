@@ -81,13 +81,13 @@ class ChatRepositoryImpl @Inject constructor(
                 val chat = response.chat.toChat()
                 val messages = response.messages.map {
                     it.toMessage()
-                }
+                }.sortedBy { it.timestamp }
 
                 val users = response.users.map {
                     it.toUser()
                 }
 
-                Conversation(chat = chat, users = users, messages = LinkedList(messages))
+                Conversation(chat = chat, users = users, messages = messages)
             }
         })
     }
