@@ -26,47 +26,6 @@ class ChatRepositoryImpl @Inject constructor(
     @Volatile
     private var isDataInitialized = false
 
-    // Synchronized method to ensure thread-safe initialization
-    private suspend fun initializeDataIfNeeded() {
-        if (!isDataInitialized) {
-            synchronized(this) {
-                if (!isDataInitialized) {
-                    // Block the current thread to ensure initialization completes
-                    runBlocking {
-                        insertFakeDataIfNeeded()
-                    }
-                    isDataInitialized = true
-                }
-            }
-        }
-    }
-
-    private suspend fun insertFakeDataIfNeeded() {
-        val messageCount = messageDao.getMessageCount()
-
-        //If there is no message then we want to insert fake data
-        if (messageCount == 0) {
-            FakeDataCreator.createFakeUserData().map {
-                it.toUserEntity()
-            }.forEach { user ->
-                userDao.insertUser(user)
-            }
-
-            FakeDataCreator.createFakeChatData().map {
-                it.toChatEntity()
-            }.forEach { chat ->
-                chatDao.insertChat(chat)
-            }
-
-            FakeDataCreator.createFakeMessages().map {
-                it.toMessageEntity()
-            }.forEach { message ->
-                messageDao.insertMessage(message)
-            }
-        }
-    }
-
-    // Function to insert fake data if needed and then fetch Conversation data
     override fun getConversationData(chatId: Long): Flow<Conversation?> = flow {
         // Ensure fake data is inserted if needed
         initializeDataIfNeeded()
@@ -105,12 +64,52 @@ class ChatRepositoryImpl @Inject constructor(
                 Conversation(
                     chatId = chatId,
                     users = users.toList(),
-                    messages = messages.sortedBy { it.timestamp })
+                    messages = messages.sortedBy { message ->  message.timestamp })
             }
         })
     }
 
     override suspend fun insertMessage(message: Message) {
         messageDao.insertMessage(message.toMessageEntity())
+    }
+
+    // Synchronized method to ensure thread-safe initialization
+    private suspend fun initializeDataIfNeeded() {
+        if (!isDataInitialized) {
+            synchronized(this) {
+                if (!isDataInitialized) {
+                    // Block the current thread to ensure initialization completes
+                    runBlocking {
+                        insertFakeDataIfNeeded()
+                    }
+                    isDataInitialized = true
+                }
+            }
+        }
+    }
+
+    private suspend fun insertFakeDataIfNeeded() {
+        val messageCount = messageDao.getMessageCount()
+
+        //If there is no message then we want to insert fake data
+        if (messageCount == 0) {
+            FakeDataCreator.createFakeUserData().map {
+                it.toUserEntity()
+            }.forEach { user ->
+                userDao.insertUser(user)
+            }
+
+            FakeDataCreator.createFakeChatData().map {
+                it.toChatEntity()
+            }.forEach { chat ->
+                chatDao.insertChat(chat)
+            }
+
+            FakeDataCreator.createFakeMessages().map {
+                it.toMessageEntity()
+            }.forEach { message ->
+                messageDao.insertMessage(message)
+            }
+        }
     }
 }

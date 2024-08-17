@@ -32,8 +32,8 @@ import com.szeptun.common.theme.ChatterTheme
 fun ChatBox(
     onSendChatClickListener: (String) -> Unit,
     modifier: Modifier = Modifier,
-    text: TextFieldValue,
-    onTextChange: (TextFieldValue) -> Unit
+    text: String,
+    onTextChange: (String) -> Unit
 ) {
     Row(modifier = modifier.padding(16.dp)) {
         TextField(
@@ -66,10 +66,10 @@ fun ChatBox(
             modifier = Modifier
                 .clip(CircleShape)
                 .align(Alignment.CenterVertically),
-            enabled = text.text.isNotBlank(),
+            enabled = text.isNotBlank(),
             onClick = {
-                onSendChatClickListener(text.text)
-                onTextChange(TextFieldValue(""))
+                onSendChatClickListener(text)
+                onTextChange("")
             },
             colors = IconButtonColors(
                 containerColor = Color.Transparent,
@@ -97,12 +97,11 @@ fun ChatBoxPreview() {
             ChatBox(
                 onSendChatClickListener = {},
                 modifier = Modifier,
-                text = TextFieldValue("Hello"),
-                {})
+                text = "Hello", {})
             ChatBox(
                 onSendChatClickListener = {},
                 modifier = Modifier,
-                text = TextFieldValue(""),
+                text = "",
                 {})
         }
     }

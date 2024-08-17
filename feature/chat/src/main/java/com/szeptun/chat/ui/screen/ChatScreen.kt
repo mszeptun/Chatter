@@ -32,15 +32,16 @@ import com.szeptun.common.theme.ChatterTheme
 fun ChatScreen(viewModel: ChatViewModel) {
 
     val state by viewModel.uiState.collectAsState()
-    var inputText by remember { mutableStateOf(TextFieldValue("")) }
 
     Chat(
         state = state,
-        text = inputText,
+        text = viewModel.text,
         onInsertMessage = { message -> viewModel.insertMessage(message) },
-        onUserReverse = { viewModel.reverseUser() },
+        onUserReverse = {
+            viewModel.reverseUser()
+        },
         onInputTextChange = { newText ->
-            inputText = newText
+            viewModel.updateText(newText)
         }
     )
 }
@@ -48,10 +49,10 @@ fun ChatScreen(viewModel: ChatViewModel) {
 @Composable
 fun Chat(
     state: ChatUiState,
-    text: TextFieldValue,
+    text: String,
     onInsertMessage: (String) -> Unit,
     onUserReverse: () -> Unit,
-    onInputTextChange: (TextFieldValue) -> Unit
+    onInputTextChange: (String) -> Unit
 ) {
     if (state.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -78,6 +79,7 @@ fun Chat(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize(),
+                // Set reverseLayout to true so it will always scroll to bottom automatically
                 reverseLayout = true
             ) {
                 items(state.messages) { message ->
@@ -127,7 +129,7 @@ fun ChatPreview() {
                     )
                 )
             ),
-            text = TextFieldValue(""),
+            text = "",
             onInsertMessage = {},
             onUserReverse = { }
         ) {

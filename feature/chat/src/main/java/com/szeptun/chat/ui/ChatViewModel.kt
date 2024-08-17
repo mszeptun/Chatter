@@ -1,5 +1,8 @@
 package com.szeptun.chat.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.szeptun.chat.domain.model.Message
@@ -8,6 +11,8 @@ import com.szeptun.chat.domain.usecase.InsertMessageUseCase
 import com.szeptun.chat.ui.model.MessageType
 import com.szeptun.chat.ui.uistate.ChatUiState
 import com.szeptun.common.Response
+import com.szeptun.common.isLessThanTwentySecondsAgo
+import com.szeptun.common.isMoreThanOneHourAgo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +31,8 @@ class ChatViewModel @Inject constructor(
 
     //Init app with mocked id
     private var localUserId = 1L
+    var text by mutableStateOf("")
+        private set
 
     private val _uiState = MutableStateFlow(ChatUiState(localUserId = localUserId))
     val uiState: StateFlow<ChatUiState>
@@ -52,11 +59,11 @@ class ChatViewModel @Inject constructor(
                                 )
                             }
 
-                            isMoreThanOneHourAgo(previousItem.timestamp, message.timestamp) -> {
+                            message.timestamp.isMoreThanOneHourAgo(previousItem.timestamp) -> {
                                 MessageType.SectionMessage(message, isLocalUserMessage)
                             }
 
-                            isLessThanTwentySecondsAgo(previousItem.timestamp, message.timestamp) &&
+                            message.timestamp.isLessThanTwentySecondsAgo(previousItem.timestamp) &&
                                     isTheSameUser(previousItem.senderId, message.senderId) -> {
                                 MessageType.SmallSeparationMessage(message, isLocalUserMessage)
                             }
@@ -112,24 +119,16 @@ class ChatViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(localUserId = localUserId)
         }
+        text = ""
         getConversation()
     }
 
-    private fun isMoreThanOneHourAgo(previousMessageTimestamp: Long, timestamp: Long): Boolean =
-        timestamp - previousMessageTimestamp > ONE_HOUR_MILLIS
+    fun updateText(newText: String) {
+        text = newText
+    }
 
     private fun isLocalUserMessage(id: Long) = id == localUserId
 
-    private fun isLessThanTwentySecondsAgo(
-        previousMessageTimestamp: Long,
-        timestamp: Long
-    ): Boolean = timestamp - previousMessageTimestamp < TWENTY_SECONDS_MILLIS
-
     private fun isTheSameUser(previousMessageSenderId: Long, senderId: Long) =
         previousMessageSenderId == senderId
-
-    companion object {
-        private const val ONE_HOUR_MILLIS = 60 * 60 * 1000
-        private const val TWENTY_SECONDS_MILLIS = 20 * 1000
-    }
 }
