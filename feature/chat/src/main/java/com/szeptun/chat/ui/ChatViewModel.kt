@@ -40,11 +40,7 @@ class ChatViewModel @Inject constructor(
 
     private lateinit var previousItem: Message
 
-    init {
-        getConversation()
-    }
-
-    private fun getConversation() {
+    fun getConversation() {
         getConversationUseCase.invoke(chatId).onEach { response ->
             when (response) {
                 is Response.Success -> {
@@ -78,8 +74,7 @@ class ChatViewModel @Inject constructor(
 
                     _uiState.value = uiState.value.copy(
                         isLoading = false,
-                        // Reverse the list so reverseLayout = true flag in LazyColumn will work correctly
-                        messages = messages.reversed(),
+                        messages = messages,
                         users = response.data.users,
                         isError = false
                     )

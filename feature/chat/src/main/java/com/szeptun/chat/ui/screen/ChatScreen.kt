@@ -5,20 +5,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.szeptun.chat.domain.model.Message
@@ -32,10 +34,28 @@ import com.szeptun.common.theme.ChatterTheme
 fun ChatScreen(viewModel: ChatViewModel) {
 
     val state by viewModel.uiState.collectAsState()
+    var isInitialized by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val lazyListState = rememberLazyListState()
 
-    Chat(
+    LaunchedEffect(Unit) {
+        if (!isInitialized) {
+            viewModel.getConversation()
+            isInitialized = true
+        }
+    }
+
+    LaunchedEffect(state.messages) {
+        if (state.messages.isNotEmpty()) {
+            lazyListState.animateScrollToItem(state.messages.size - 1)
+        }
+    }
+
+    ChatContent(
         state = state,
         text = viewModel.text,
+        lazyListState = lazyListState,
         onInsertMessage = { message -> viewModel.insertMessage(message) },
         onUserReverse = {
             viewModel.reverseUser()
@@ -47,9 +67,10 @@ fun ChatScreen(viewModel: ChatViewModel) {
 }
 
 @Composable
-fun Chat(
+fun ChatContent(
     state: ChatUiState,
     text: String,
+    lazyListState: LazyListState,
     onInsertMessage: (String) -> Unit,
     onUserReverse: () -> Unit,
     onInputTextChange: (String) -> Unit
@@ -79,8 +100,7 @@ fun Chat(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize(),
-                // Set reverseLayout to true so it will always scroll to bottom automatically
-                reverseLayout = true
+                state = lazyListState
             ) {
                 items(state.messages) { message ->
                     MessageItem(message = message)
@@ -99,7 +119,7 @@ fun Chat(
 @Composable
 fun ChatPreview() {
     ChatterTheme {
-        Chat(
+        ChatContent(
             state = ChatUiState(
                 isLoading = false,
                 users = listOf(User(name = "Marcin", avatarUrl = "")),
@@ -130,6 +150,7 @@ fun ChatPreview() {
                 )
             ),
             text = "",
+            lazyListState = rememberLazyListState(),
             onInsertMessage = {},
             onUserReverse = { }
         ) {
