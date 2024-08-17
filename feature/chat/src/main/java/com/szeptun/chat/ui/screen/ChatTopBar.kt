@@ -47,7 +47,7 @@ fun ChatTopBar(modifier: Modifier = Modifier, user: User, onUserReverse: () -> U
                 AsyncImage(
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(32.dp)
+                        .size(36.dp)
                         .border(
                             1.dp,
                             color = MaterialTheme.colorScheme.tertiary,

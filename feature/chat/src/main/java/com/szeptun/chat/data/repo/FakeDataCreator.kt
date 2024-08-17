@@ -5,7 +5,7 @@ import com.szeptun.chat.domain.model.Message
 import com.szeptun.chat.domain.model.User
 
 object FakeDataCreator {
-    // Creating fake Users, assuming local user id will be 0
+    // Creating fake Users, assuming local user id will be 1
     fun createFakeUserData() = listOf(
         User(
             name = "Marcin",
@@ -30,7 +30,8 @@ object FakeDataCreator {
         chatId: Long = 1
     ): List<Message> {
         val messages = mutableListOf<Message>()
-        val startTime = System.currentTimeMillis() - 3 * 60 * 60 * 1000 // Start 3 hours ago
+        // Start 3 hours ago
+        val startTime = System.currentTimeMillis() - 3 * 60 * 60 * 1000
         var lastTimestamp = startTime
         val oneHourMillis = 60 * 60 * 1000
         val twentySecondsMillis = 20 * 1000
