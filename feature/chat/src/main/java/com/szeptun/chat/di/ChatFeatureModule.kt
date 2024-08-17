@@ -11,11 +11,6 @@ import javax.inject.Named
 @Module
 @InstallIn(SingletonComponent::class)
 object ChatFeatureModule {
-    //Mock local user id
-    @Provides
-    @Named("localUserId")
-    fun provideLocalUser(): Long = 1
-
     //Mock chat id
     @Provides
     @Named("chatId")

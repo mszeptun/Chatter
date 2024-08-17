@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -20,11 +21,13 @@ import javax.inject.Named
 class ChatViewModel @Inject constructor(
     private val getConversationUseCase: GetConversationUseCase,
     private val insertMessageUseCase: InsertMessageUseCase,
-    @Named("localUserId") private val localUserId: Long,
     @Named("chatId") private val chatId: Long
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChatUiState())
+    //Init app with mocked id
+    private var localUserId = 1L
+
+    private val _uiState = MutableStateFlow(ChatUiState(localUserId = localUserId))
     val uiState: StateFlow<ChatUiState>
         get() = _uiState
 
@@ -38,22 +41,22 @@ class ChatViewModel @Inject constructor(
         getConversationUseCase.invoke(chatId).onEach { response ->
             when (response) {
                 is Response.Success -> {
-                    val messages = response.data.messages.map { message ->
+                    val messages = response.data.messages.mapIndexed { index, message ->
                         val isLocalUserMessage = isLocalUserMessage(message.senderId)
                         when {
-                            // Previous item is not initialized so it has to be first message
-                            !::previousItem.isInitialized -> {
+                            // First item always should be SectionMessage
+                            index == 0 -> {
                                 MessageType.SectionMessage(
                                     message,
                                     isLocalUserMessage
                                 )
                             }
 
-                            isMoreThanOneHourAgo(message.timestamp) -> {
+                            isMoreThanOneHourAgo(previousItem.timestamp, message.timestamp) -> {
                                 MessageType.SectionMessage(message, isLocalUserMessage)
                             }
 
-                            isLessThanTwentySecondsAgo(message.timestamp) &&
+                            isLessThanTwentySecondsAgo(previousItem.timestamp, message.timestamp) &&
                                     isTheSameUser(previousItem.senderId, message.senderId) -> {
                                 MessageType.SmallSeparationMessage(message, isLocalUserMessage)
                             }
@@ -68,7 +71,8 @@ class ChatViewModel @Inject constructor(
 
                     _uiState.value = uiState.value.copy(
                         isLoading = false,
-                        messages = messages,
+                        // Reverse the list so reverseLayout = true flag in LazyColumn will work correctly
+                        messages = messages.reversed(),
                         users = response.data.users,
                         isError = false
                     )
@@ -93,23 +97,33 @@ class ChatViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun insertMessage(message: Message) {
+    fun insertMessage(text: String) {
+        val message = Message(
+            content = text,
+            senderId = localUserId,
+            chatId = chatId,
+            timestamp = System.currentTimeMillis()
+        )
         insertMessageUseCase.invoke(message).launchIn(viewModelScope)
     }
 
-    private fun isMoreThanOneHourAgo(timestamp: Long): Boolean {
-        val currentTimeMillis = System.currentTimeMillis()
-
-        return currentTimeMillis - timestamp > ONE_HOUR_MILLIS
+    fun reverseUser() {
+        localUserId = _uiState.value.users.first { it.id != localUserId }.id
+        _uiState.update { state ->
+            state.copy(localUserId = localUserId)
+        }
+        getConversation()
     }
+
+    private fun isMoreThanOneHourAgo(previousMessageTimestamp: Long, timestamp: Long): Boolean =
+        timestamp - previousMessageTimestamp > ONE_HOUR_MILLIS
 
     private fun isLocalUserMessage(id: Long) = id == localUserId
 
-    private fun isLessThanTwentySecondsAgo(timestamp: Long): Boolean {
-        val currentTimeMillis = System.currentTimeMillis()
-
-        return currentTimeMillis - timestamp < TWENTY_SECONDS_MILLIS
-    }
+    private fun isLessThanTwentySecondsAgo(
+        previousMessageTimestamp: Long,
+        timestamp: Long
+    ): Boolean = timestamp - previousMessageTimestamp < TWENTY_SECONDS_MILLIS
 
     private fun isTheSameUser(previousMessageSenderId: Long, senderId: Long) =
         previousMessageSenderId == senderId
