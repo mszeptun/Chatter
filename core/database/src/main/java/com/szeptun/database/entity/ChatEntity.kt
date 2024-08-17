@@ -9,6 +9,6 @@ import com.szeptun.database.converter.UserIdsConverter
 @TypeConverters(UserIdsConverter::class)
 data class ChatEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val userIds: List<Long>
 )

@@ -1,13 +1,11 @@
 package com.szeptun.chat.data.repo
 
-import com.szeptun.chat.data.mapper.toChat
 import com.szeptun.chat.data.mapper.toChatEntity
-import com.szeptun.chat.data.mapper.toMessage
 import com.szeptun.chat.data.mapper.toMessageEntity
-import com.szeptun.chat.data.mapper.toUser
 import com.szeptun.chat.data.mapper.toUserEntity
 import com.szeptun.chat.domain.model.Conversation
 import com.szeptun.chat.domain.model.Message
+import com.szeptun.chat.domain.model.User
 import com.szeptun.chat.domain.repo.ChatRepository
 import com.szeptun.database.dao.ChatDao
 import com.szeptun.database.dao.MessageDao
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
-import java.util.LinkedList
 import javax.inject.Inject
 
 class ChatRepositoryImpl @Inject constructor(
@@ -75,20 +72,40 @@ class ChatRepositoryImpl @Inject constructor(
         initializeDataIfNeeded()
 
         // Now fetch and return Conversation data
-        emitAll(chatDao.getChatWithMessagesAndUsers(chatId).map { response ->
+        emitAll(chatDao.getMessagesAndUsersForChat(chatId).map { response ->
             if (response == null) {
                 null
             } else {
-                val chat = response.chat.toChat()
-                val messages = response.messages.map {
-                    it.toMessage()
-                }.sortedBy { it.timestamp }
+                // Separate lists
+                val messages = mutableListOf<Message>()
+                val users = mutableSetOf<User>()
 
-                val users = response.users.map {
-                    it.toUser()
+                for (result in response) {
+                    // Map to Message
+                    val message = Message(
+                        id = result.messageId,
+                        content = result.messageContent,
+                        senderId = result.senderId,
+                        chatId = result.chatId,
+                        timestamp = result.messageTimestamp
+                    )
+                    messages.add(message)
+
+                    // Map to User, ensure users are unique
+                    if (result.userId != null) {
+                        val user = User(
+                            id = result.userId ?: 0L,
+                            name = result.userName ?: "",
+                            avatarUrl = result.userAvatarUrl ?: ""
+                        )
+                        users.add(user)
+                    }
                 }
 
-                Conversation(chat = chat, users = users, messages = messages)
+                Conversation(
+                    chatId = chatId,
+                    users = users.toList(),
+                    messages = messages.sortedBy { it.timestamp })
             }
         })
     }
